@@ -1,5 +1,7 @@
 <script lang="ts">
-    interface Props {
+    import type { HTMLInputAttributes } from "svelte/elements";
+
+    interface Props extends Omit<HTMLInputAttributes, "type" | "class"> {
         name: string;
         label?: string;
         checked?: boolean;
@@ -15,10 +17,15 @@
     }: Props = $props();
 </script>
 
-
 <div class="flex items-center gap-2 {classes}">
     <label for={name} class="relative cursor-pointer">
-        <input bind:checked={checked} {...others} type="checkbox" {name} id={name} class="toggle-input">
+        <input
+            bind:checked
+            {...others}
+            type="checkbox"
+            {name}
+            id={name}
+            class="toggle-input" />
         <span class="switch shadow-md"></span>
     </label>
 

@@ -29,6 +29,7 @@
 		"@tauri-apps/plugin-autostart": "^2.5.0",
 		"@tauri-apps/plugin-notification": "^2.3.1",
 		"@tauri-apps/plugin-sql": "^2.3.0",
+		"@tauri-apps/plugin-store": "^2.4.0",
 		"drizzle-orm": "^0.44.5",
 		"tailwindcss": "^4.1.13"
 	}

@@ -1,4 +1,10 @@
-import { sqliteTable, integer, text, SQLiteBoolean, primaryKey } from 'drizzle-orm/sqlite-core'
+import {
+    sqliteTable,
+    integer,
+    text,
+    SQLiteBoolean,
+    primaryKey,
+} from "drizzle-orm/sqlite-core";
 
 export const trackers = sqliteTable("trackers", {
     id: integer().primaryKey(),
@@ -6,17 +12,14 @@ export const trackers = sqliteTable("trackers", {
     amount: integer().notNull(),
     progress: integer().notNull(),
     completed: integer({ mode: "boolean" }).notNull(),
-    completedAt: integer("completed_at", { mode: "timestamp" })
+    isDaily: integer("is_daily", { mode: "boolean" }).notNull(),
+    lastModifiedAt: integer("last_modified_at", {
+        mode: "timestamp",
+    })
+        .notNull()
+        .$defaultFn(() => new Date())
+        .$onUpdateFn(() => new Date()),
 });
-
-export const dailyTrackers = sqliteTable("daily_trackers", {
-    id: integer(),
-    trackerId: integer("tracker_id").notNull(),
-    lastCompletion: integer("last_completion", { mode: "timestamp" })
-})
 
 export type SelectTracker = typeof trackers.$inferSelect;
 export type InsertTracker = typeof trackers.$inferInsert;
-
-export type SelectDailyTracker = typeof dailyTrackers.$inferSelect;
-export type InsertDailyTracker = typeof dailyTrackers.$inferInsert;

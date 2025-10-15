@@ -23,11 +23,11 @@ export const db = drizzle<typeof schema>(
                 return [];
             });
         } else {
-            rows = await sqlite.execute(sql, params).catch((e) => {
+            const result = await sqlite.execute(sql, params).catch((e) => {
                 console.error("SQL Error:", e);
                 return [];
             });
-            return { rows: [] };
+            return { rows: [{ result }] };
         }
 
         rows = rows.map((row: any) => {
@@ -40,6 +40,6 @@ export const db = drizzle<typeof schema>(
     },
     {
         schema: schema,
-        logger: true
-    }
+        logger: true,
+    },
 );
