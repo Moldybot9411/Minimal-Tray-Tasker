@@ -19,7 +19,9 @@ pub fn init(app: AppHandle) {
             .show_menu_on_left_click(false)
             .on_menu_event(|app, event| match event.id.as_ref() {
                 "open" => {
-                    println!("Open was clicked");
+                    if let Some(window) = app.get_webview_window("main") {
+                        open_existing_window(window);
+                    }
                 }
 
                 "quit" => {
@@ -39,10 +41,7 @@ pub fn init(app: AppHandle) {
                     let app = tray.app_handle();
                     tauri_plugin_positioner::on_tray_event(app, &event);
                     if let Some(window) = app.get_webview_window("main") {
-                        let _ = window.unminimize();
-                        let _ = window.show();
-                        let _ = window.move_window_constrained(Position::TrayCenter);
-                        let _ = window.set_focus();
+                        open_existing_window(window);
                     } else {
                         let window = WebviewWindow::builder(
                             app,
@@ -83,4 +82,11 @@ pub fn init(app: AppHandle) {
             })
             .build(&app);
     }
+}
+
+fn open_existing_window(window: WebviewWindow) {
+    let _ = window.unminimize();
+    let _ = window.show();
+    let _ = window.move_window_constrained(Position::TrayCenter);
+    let _ = window.set_focus();
 }
