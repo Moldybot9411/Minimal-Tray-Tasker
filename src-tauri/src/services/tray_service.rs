@@ -76,6 +76,7 @@ fn create_window(app: &AppHandle) {
     .inner_size(400.0, 500.0)
     .visible(true)
     .always_on_top(true)
+    .skip_taskbar(true)
     .build()
     .unwrap();
 
