@@ -77,7 +77,7 @@ pub fn run() {
             let handle = app.handle();
 
             // Start System Tray
-            tray_service::init(handle.clone());
+            tauri::async_runtime::spawn(tray_service::init(handle.clone()));
 
             // Start User Settings Service
             settings_service::init(handle.clone(), handle.state());

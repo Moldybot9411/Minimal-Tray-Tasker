@@ -5,7 +5,7 @@ use tauri_plugin_positioner::{ Position, WindowExt };
 
 use crate::{services::settings_service::get_settings, Settings};
 
-pub fn init(app: AppHandle) {
+pub async fn init(app: AppHandle) {
     #[cfg(desktop)]
     {
         let open_i = MenuItem::with_id(&app, "open", "Open", true, None::<&str>).unwrap();
@@ -21,6 +21,8 @@ pub fn init(app: AppHandle) {
                 "open" => {
                     if let Some(window) = app.get_webview_window("main") {
                         open_existing_window(window);
+                    } else {
+                        create_window(&app);
                     }
                 }
 
@@ -39,42 +41,12 @@ pub fn init(app: AppHandle) {
                     ..
                 } => {
                     let app = tray.app_handle();
-                    tauri_plugin_positioner::on_tray_event(app, &event);
+                    tauri_plugin_positioner::on_tray_event(&app, &event);
+
                     if let Some(window) = app.get_webview_window("main") {
                         open_existing_window(window);
                     } else {
-                        let window = WebviewWindow::builder(
-                            app,
-                            "main",
-                            tauri::WebviewUrl::App("index.html".into()),
-                        )
-                        .title("Minimal Tracker")
-                        .decorations(false)
-                        .inner_size(400.0, 500.0)
-                        .visible(true)
-                        .always_on_top(true)
-                        .build()
-                        .unwrap();
-
-                        let win_handle = window.clone();
-
-                        let _ = win_handle.move_window_constrained(Position::TrayCenter);
-                        let _ = win_handle.set_focus();
-
-                        win_handle
-                            .clone()
-                            .on_window_event(move |event| match event {
-                                tauri::WindowEvent::Focused(focus) if !focus => {
-                                    let ramsaver = &get_settings(win_handle.state())[&Settings::RamSaver.to_string()];
-
-                                    if ramsaver.is_boolean() && ramsaver == true {
-                                        let _ = win_handle.close();
-                                    } else {
-                                        let _ = win_handle.hide();
-                                    }
-                                }
-                                _ => {}
-                            });
+                        create_window(&app);
                     }
                 }
 
@@ -87,6 +59,50 @@ pub fn init(app: AppHandle) {
 fn open_existing_window(window: WebviewWindow) {
     let _ = window.unminimize();
     let _ = window.show();
-    let _ = window.move_window_constrained(Position::TrayCenter);
+
+    move_window(&window);
+
     let _ = window.set_focus();
+}
+
+fn create_window(app: &AppHandle) {
+    let window = WebviewWindow::builder(
+        app,
+        "main",
+        tauri::WebviewUrl::App("index.html".into()),
+    )
+    .title("Minimal Tracker")
+    .decorations(false)
+    .inner_size(400.0, 500.0)
+    .visible(true)
+    .always_on_top(true)
+    .build()
+    .unwrap();
+
+    move_window(&window);
+
+    let _ = window.set_focus();
+
+    window
+        .clone()
+        .on_window_event(move |event| match event {
+            tauri::WindowEvent::Focused(focus) if !focus => {
+                let ramsaver = &get_settings(window.state())[&Settings::RamSaver.to_string()];
+
+                if ramsaver.is_boolean() && ramsaver == true {
+                    let _ = window.close();
+                } else {
+                    let _ = window.hide();
+                }
+            }
+            _ => {}
+        });
+}
+
+fn move_window(window: &WebviewWindow) {
+    #[cfg(target_os = "linux")]
+    let _ = window.move_window_constrained(Position::Center);
+
+    #[cfg(not(target_os = "linux"))]
+    let _ = window.move_window_constrained(Position::TrayCenter);
 }
