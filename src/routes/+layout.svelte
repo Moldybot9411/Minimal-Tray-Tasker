@@ -24,6 +24,7 @@
     import { listen } from "@tauri-apps/api/event";
     import { onMount, type ComponentProps } from "svelte";
     import "../app.css";
+    import { page } from "$app/state";
 
     let { children } = $props();
 
@@ -46,16 +47,19 @@
             variant: "secondary",
             icon: Pickaxe,
             href: "/",
+            title: "To do",
         },
         {
             variant: "secondary",
             icon: TimerReset,
             href: "/daily",
+            title: "Finished daily tasks",
         },
         {
             variant: "secondary",
             icon: CalendarCheck,
             href: "/completed",
+            title: "Finished tasks",
         },
     ];
 
@@ -111,23 +115,40 @@
             icon={BadgePlus}
             label="Add Tracker"
             class="w-full"
-            onclick={() => (activeDialog = "new")} />
+            onclick={() => (activeDialog = "new")}
+            title="Add Tracker" />
         <Button
             variant="secondary"
             icon={Settings2}
-            onclick={() => (activeDialog = "settings")} />
-        <Button variant="secondary" icon={Moon} onclick={() => toggleTheme()} />
+            onclick={() => (activeDialog = "settings")}
+            title="Open Settings" />
+        <Button
+            variant="secondary"
+            icon={Moon}
+            onclick={() => toggleTheme()}
+            title="Toggle Dark/Light Mode" />
     </div>
     <!-- <div class="border-b-2 border-gray-500"></div> -->
     <div class="flex gap-2">
         {#each buttons as button}
-            <Button
-                variant={button.variant}
-                icon={button.icon}
-                class="w-full"
-                onclick={() => {
-                    if (button.href) goto(button.href);
-                }} />
+            {@const isActive = page.url.pathname === button.href}
+
+            <div class="relative flex w-full flex-col items-center">
+                <Button
+                    variant={button.variant}
+                    icon={button.icon}
+                    title={button.title}
+                    class="w-full"
+                    onclick={() => {
+                        if (button.href) goto(button.href);
+                    }} />
+
+                {#if isActive}
+                    <div
+                        class="absolute -bottom-3 h-1.5 w-4.5 rounded-full bg-indigo-400 dark:bg-blue-500">
+                    </div>
+                {/if}
+            </div>
         {/each}
     </div>
 </Card>

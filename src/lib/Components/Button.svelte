@@ -7,6 +7,7 @@
         children?: Snippet;
         label?: string;
         icon?: typeof IconType;
+        title?: string;
         variant?: "primary" | "secondary" | "accept" | "warning" | "danger";
         class?: string;
     }
@@ -15,6 +16,7 @@
         children,
         label,
         icon,
+        title,
         variant = "primary",
         class: classes,
         ...others
@@ -34,6 +36,7 @@
             "bg-yellow-500 hover:bg-yellow-600 dark:bg-amber-400 darK:hover:bg-amber-500",
         variant === "danger" && "bg-red-500 hover:bg-red-600",
     ]}
+    {title}
     {...others}>
     {#if icon}
         {@const Icon = icon}
